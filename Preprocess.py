@@ -5,16 +5,17 @@ import os
 import rasterio
 
 #Set up data paths
+area = 'MainAOI'
 cwd = os.getcwd()
 base_folder = os.path.join(cwd, r"data\raw")
 image_folder = r"S2A_L1C_15_8_2023\GRANULE\L1C_T16RCU_A042551_20230815T164413\IMG_DATA"
 img_path = os.path.join(base_folder, image_folder)
 blue_filename = "T16RCU_20230815T162901_B02.jp2"
 blue_path = os.path.join(img_path, blue_filename)
-bbox_file = r'data\processed\2023_325_Chandeleurs_MBES_MainAOI_1m_WGS84_UTM16N_bbox.txt'
-wgs84_path = os.path.join(base_folder, r'Chandeleur_Islands_2023_MBES\2023_325_Chandeleurs_MBES_MainAOI_1m_WGS84_UTM16N.xyz')
-navd88_path = os.path.join(base_folder, r'Chandeleur_Islands_2023_MBES\2023_325_Chandeleurs_MBES_MainAOI_1m_NAD83_NAVD88_G18.xyz')
-out_path = r'data\processed\per_pixel_heights.csv'
+bbox_file = r'data\processed\2023_325_Chandeleurs_MBES_' + area + '_1m_WGS84_UTM16N_bbox.txt'
+wgs84_path = os.path.join(base_folder, r'Chandeleur_Islands_2023_MBES\2023_325_Chandeleurs_MBES_'+area+'_1m_WGS84_UTM16N.xyz')
+navd88_path = os.path.join(base_folder, r'Chandeleur_Islands_2023_MBES\2023_325_Chandeleurs_MBES_'+area+'_1m_NAD83_NAVD88_G18.xyz')
+out_path = r'data\processed\per_pixel_heights_'+area+'.csv'
 
 #Obtain sentinel-2 image grid parameters
 blue = rasterio.open(blue_path)
@@ -90,22 +91,30 @@ print('done reading in the observations')
 #Determine one height per pixel two options median or uncertainty weighted mean
 median_heights = []
 weighted_mean_heights = []
+mean_uncertainty = []
+number_of_points_in_cell = []
 i=0
 for obs, uncer in zip(coords_df['observations'],coords_df['uncertainty']):
     if len(obs) == 0: #Lots of pixels within bbox with no observations
         median_heights.append(np.nan)
         weighted_mean_heights.append(np.nan)
+        mean_uncertainty.append(np.nan)
+        number_of_points_in_cell.append(np.nan)
     else:
         median_heights.append(np.median(obs))
         weighted_mean_heights.append(np.average(obs, weights= (1/np.power(uncer,2))))
+        mean_uncertainty.append(np.mean(uncer)) #Differences in order of 0.1 cm with 4cm uncertainty so heavily correlated
+        number_of_points_in_cell.append(len(obs))
     i += 1
     if i % 100000 == 0:
         print(f'Processed {i} sites')
 coords_df['median_height'] = median_heights
 coords_df['weighted_mean_height'] = weighted_mean_heights
+coords_df['mean_uncertainty'] = mean_uncertainty
+coords_df['number_of_points'] = number_of_points_in_cell
 
 print('done calculating pixel heights')
-coords_df.to_csv(out_path, index = False, columns = ['true_x', 'true_y', 'median_height','weighted_mean_height'])
+coords_df.dropna().to_csv(out_path, index = False, columns = ['true_x', 'true_y', 'median_height','weighted_mean_height','mean_uncertainty','number_of_points'])
 
 #Close files
 wgs84_coords_file.close()

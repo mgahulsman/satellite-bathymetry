@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
-fname = r'data\processed\per_pixel_heights.csv'
+fname = r'data\processed\per_pixel_heights_SouthernRecon.csv'
 df = pd.read_csv(fname, index_col = 0)
 
 fig,ax = plt.subplots(1,1)
@@ -19,4 +19,5 @@ plt.tight_layout()
 plt.show()
 
 print(np.nanstd(df['median_height']-df['weighted_mean_height']))
+print(np.nanmean(df['median_height']-df['weighted_mean_height']))
 print(df['median_height'].corr(df['weighted_mean_height']))
