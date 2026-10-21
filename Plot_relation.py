@@ -22,8 +22,12 @@ x_pix = np.array((x_col - offset_x) / scale_x).astype(int)
 y_pix = np.array((y_col - offset_y) / scale_y).astype(int)
 log_ratio_col = im_data[y_pix, x_pix]
 
+h_bins = np.linspace(np.min(height_col), np.max(height_col),201)
+log_bins = np.linspace(np.percentile(log_ratio_col,0.01), np.percentile(log_ratio_col,99.9),201)
+
 plt.figure(figsize=(10,10))
-plt.scatter(height_col, log_ratio_col,s = 0.2, color = 'black', alpha = 0.1)
+plt.hist2d(height_col,log_ratio_col,bins=[h_bins,log_bins],cmap='jet', cmin =5)
+plt.colorbar()
 plt.xlabel('NAVD88 Height (m)')
 plt.ylabel('Log Ratio')
 plt.show()
