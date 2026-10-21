@@ -59,72 +59,49 @@ print('Calculated log band ratio 3/4')
 blue_over_red = np.log(n*blue) / np.log(n*red)
 print('Calculated log band ratio 4/4')
 
+aero_over_green_corr = aero_over_green/ndwi
+blue_over_green_corr = blue_over_green/ndwi
+aero_over_red_corr = aero_over_red/ndwi
+blue_over_red_corr = blue_over_red/ndwi
+
+def save_as_tif(arr, height, width, proj, transform, fpath):
+    arr_save = rio.open(fpath,
+                        "w",
+                        driver='GTiff',
+                        height=height,
+                        width=width,
+                        count=1,
+                        dtype=arr.dtype,
+                        crs=proj,
+                        transform=transform,
+                        )
+    arr_save.write(arr,1)
+    arr_save.close()
+    return 0
+
 ndwi_path = os.path.join(output_dir, 'ndwi.tif')
-ndwi_save = rio.open(ndwi_path,
-                     'w',
-                     driver='GTiff',
-                     height=height,
-                     width=width,
-                     count=1,
-                     dtype=ndwi.dtype,
-                     crs=proj_string,
-                     transform=transform,
-                     )
-ndwi_save.write(ndwi, 1)
-ndwi_save.close()
+save_as_tif(ndwi,height,width,proj_string,transform,ndwi_path)
 
 aero_over_green_path = os.path.join(output_dir, 'aero_over_green.tif')
-aero_over_green_save = rio.open(aero_over_green_path,
-                     'w',
-                     driver='GTiff',
-                     height=height,
-                     width=width,
-                     count=1,
-                     dtype=aero_over_green.dtype,
-                     crs=proj_string,
-                     transform=transform,
-                     )
-aero_over_green_save.write(aero_over_green, 1)
-aero_over_green_save.close()
+save_as_tif(aero_over_green,height,width,proj_string,transform,aero_over_green_path)
 
 aero_over_red_path = os.path.join(output_dir, 'aero_over_red.tif')
-aero_over_red_save = rio.open(aero_over_red_path,
-                              "w",
-                              driver='GTiff',
-                              height=height,
-                              width=width,
-                              count=1,
-                              dtype=aero_over_red.dtype,
-                              crs=proj_string,
-                              transform=transform,
-                              )
-aero_over_red_save.write(aero_over_red, 1)
-aero_over_red_save.close()
-
-blue_over_red_path = os.path.join(output_dir, 'blue_over_red.tif')
-blue_over_red_save = rio.open(blue_over_red_path,
-                              'w',
-                              driver='GTiff',
-                              height=height,
-                              width=width,
-                              count=1,
-                              dtype=blue_over_red.dtype,
-                              crs=proj_string,
-                              transform=transform,
-                              )
-blue_over_red_save.write(blue_over_red, 1)
-blue_over_red_save.close()
+save_as_tif(aero_over_red,height,width,proj_string,transform,aero_over_red_path)
 
 blue_over_green_path = os.path.join(output_dir, 'blue_over_green.tif')
-blue_over_green_save = rio.open(blue_over_green_path,
-                                'w',
-                                driver='GTiff',
-                                height=height,
-                                width=width,
-                                count=1,
-                                dtype=blue_over_green.dtype,
-                                crs=proj_string,
-                                transform=transform,
-                                )
-blue_over_green_save.write(blue_over_green, 1)
-blue_over_green_save.close()
+save_as_tif(blue_over_green,height,width,proj_string,transform,blue_over_green_path)
+
+blue_over_red_path = os.path.join(output_dir, 'blue_over_red.tif')
+save_as_tif(blue_over_red,height,width,proj_string,transform,blue_over_red_path)
+
+aero_over_green_corr_path = os.path.join(output_dir, 'aero_over_green_corr.tif')
+save_as_tif(aero_over_green_corr,height,width,proj_string,transform,aero_over_green_corr_path)
+
+aero_over_red_corr_path = os.path.join(output_dir, 'aero_over_red_corr.tif')
+save_as_tif(aero_over_red_corr,height,width,proj_string,transform,aero_over_red_corr_path)
+
+blue_over_green_corr_path = os.path.join(output_dir, 'blue_over_green_corr.tif')
+save_as_tif(blue_over_green_corr,height,width,proj_string,transform,blue_over_green_corr_path)
+
+blue_over_red_corr_path = os.path.join(output_dir, 'blue_over_red_corr.tif')
+save_as_tif(blue_over_red_corr,height,width,proj_string,transform,blue_over_red_corr_path)
