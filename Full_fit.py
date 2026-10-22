@@ -26,7 +26,7 @@ im_ar = aero_over_red.read(1)
 
 height_df = pd.read_csv('data/processed/per_pixel_heights_MainAOI.csv')
 height_col = height_df['median_height']
-height_mask = np.where(height_col > -8, True, False)
+height_mask = np.where(height_col > -11, True, False)
 uncer_col = height_df['mean_uncertainty']
 x_col = height_df['true_x']
 y_col = height_df['true_y']
@@ -35,16 +35,22 @@ x_pix = np.array((x_col - offset_x) / scale_x).astype(int)
 y_pix = np.array((y_col - offset_y) / scale_y).astype(int)
 
 vals_bg = im_bg[y_pix,x_pix]
+mask_bg = np.where((vals_bg > np.percentile(vals_bg,0.1))&(vals_bg < np.percentile(vals_bg, 99.9)), True, False)
 vals_br = im_br[y_pix,x_pix]
+mask_br = np.where((vals_br > np.percentile(vals_br,0.1))&(vals_br < np.percentile(vals_br, 99.9)), True, False)
 vals_ag = im_ag[y_pix,x_pix]
+mask_ag = np.where((vals_ag > np.percentile(vals_ag,0.1))&(vals_ag < np.percentile(vals_ag, 99.9)), True, False)
 vals_ar = im_ar[y_pix,x_pix]
+mask_ar = np.where((vals_ar > np.percentile(vals_ar,0.1))&(vals_ar < np.percentile(vals_ar, 99.9)), True, False)
 x_array = np.array([vals_bg,vals_br,vals_ag,vals_ar])
+log_mask = mask_bg & mask_br & mask_ag & mask_ar
+total_mask = np.logical_and(log_mask,height_mask)
 
 popt, pcov = curve_fit(lin,
-                       x_array[:,height_mask],
-                       height_col[height_mask],
+                       x_array[:,total_mask],
+                       height_col[total_mask],
                        p0=[0,0,0,0,0],
-                       sigma = uncer_col[height_mask],
+                       sigma = uncer_col[total_mask],
                        absolute_sigma = True)
 print(popt)
 y_bins = np.linspace(np.min(height_col),np.max(height_col),201)
@@ -63,6 +69,7 @@ residuals = height_col - predicted_height
 res_bins = np.linspace(np.percentile(residuals,0.01),np.percentile(residuals,99.9),201)
 plt.figure(figsize=(10,6))
 plt.hist2d(height_col,residuals, bins=[y_bins,res_bins], cmap='jet',cmin=5)
+plt.axhline(y=0, color='black', linestyle='dashed',zorder=1)
 plt.xlabel('NAVD88 Height (m)')
 plt.ylabel('Residual (m)')
 plt.savefig('residual.png')
@@ -70,6 +77,18 @@ plt.show()
 
 print('Bias: ',np.mean(residuals))
 print('RMSE: ',np.sqrt(np.mean(residuals ** 2)))
+print('MAE: ',np.mean(np.abs(residuals)))
+
+big_bins = [0,-4,-6,-8,-12]
+for i in range(len(big_bins)-1):
+    bin_mask = np.where((height_col < big_bins[i]) & (height_col > big_bins[i+1]),True,False)
+    bin_true = height_col[bin_mask]
+    bin_pred = predicted_height[bin_mask]
+    bin_residual = bin_true - bin_pred
+    print(f'For heights between {big_bins[i+1]} and {big_bins[i]}')
+    print('Bias: ',np.mean(bin_residual))
+    print('RMSE: ',np.sqrt(np.mean(bin_residual ** 2)))
+    print('MAE: ',np.mean(np.abs(bin_residual)))
 
 blue_over_green.close()
 blue_over_red.close()
