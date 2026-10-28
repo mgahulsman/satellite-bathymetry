@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import rasterio as rio
@@ -7,6 +8,12 @@ import matplotlib.pyplot as plt
 def lin(x, a, b):
     return a * x + b
 
+# Create output directories
+output_dir = 'data/output/linear/'
+figs_dir = os.path.join(output_dir, 'figs')
+os.makedirs(figs_dir, exist_ok=True)
+
+# Load raster datasets
 log_ratio_path = 'data/processed/blue_over_green_corr.tif'
 log_ratio_file = rio.open(log_ratio_path)
 
@@ -36,13 +43,13 @@ def process_csv_data(csv_file: str):
                             (log_ratio_col < np.percentile(log_ratio_col, 99.9)), True, False)
     total_mask = np.logical_and(outlier_mask, height_mask)
     
-    # Geef ongefilterde data + mask terug
+    # Return un-filtered data alongside total_mask
     return log_ratio_col, height_col, uncer_col, total_mask
 
-# Load train set
+# Load training set
 train_lr, train_h, train_uncer, train_mask = process_csv_data("per_pixel_heights_MainAOI.csv")
 
-# Curve fit enkel op total_mask (zoals in je eerste script)
+# Perform curve fit using total_mask
 popt, pcov = curve_fit(lin,
                        train_lr[train_mask],
                        train_h[train_mask],
@@ -55,14 +62,17 @@ def create_results(log_ratio_col, height_col, name="set"):
     x_bins = np.linspace(np.min(log_ratio_col), np.percentile(log_ratio_col, 99.9), 201)
     y_bins = np.linspace(np.min(height_col), np.max(height_col), 201)
 
+    # Plot 1: Linear fit
     plt.figure(figsize=(10, 10))
     plt.hist2d(log_ratio_col, height_col, bins=[x_bins, y_bins], cmap='jet', cmin=5)
     plt.plot(x_bins, lin(x_bins, *popt), 'r', zorder=1)
     plt.xlim(np.min(log_ratio_col), np.percentile(log_ratio_col, 99.9))
     plt.xlabel('Log Ratio')
     plt.ylabel('NAVD88 Height (m)')
+    plt.savefig(os.path.join(figs_dir, f'Fit_{name}.png'))
     plt.show()
 
+    # Plot 2: True vs Predicted Height
     predicted_height = lin(log_ratio_col, *popt)
     plt.figure(figsize=(10, 10))
     plt.hist2d(height_col, predicted_height, bins=y_bins, cmap='jet', cmin=5)
@@ -70,9 +80,10 @@ def create_results(log_ratio_col, height_col, name="set"):
     plt.colorbar()
     plt.xlabel('True Height')
     plt.ylabel('Predicted Height')
-    plt.savefig(f'HeightvsPrediction_{name}.png')
+    plt.savefig(os.path.join(figs_dir, f'HeightvsPrediction_{name}.png'))
     plt.show()
 
+    # Plot 3: Residuals
     residuals = height_col - predicted_height
     res_bins = np.linspace(np.percentile(residuals, 0.01), np.percentile(residuals, 99.9), 201)
     plt.figure(figsize=(10, 6))
@@ -80,13 +91,15 @@ def create_results(log_ratio_col, height_col, name="set"):
     plt.axhline(y=0, color='black', linestyle='dashed', zorder=1)
     plt.xlabel('NAVD88 Height (m)')
     plt.ylabel('Residual (m)')
-    plt.savefig(f'residual_{name}.png')
+    plt.savefig(os.path.join(figs_dir, f'residual_{name}.png'))
     plt.show()
 
-    print(f'--- Results for {name} ---')
-    print('Bias: ', np.mean(residuals))
-    print('RSME: ', np.sqrt(np.mean(residuals ** 2)))
-    print('MAE: ', np.mean(np.abs(residuals)))
+    # Build evaluation metrics log
+    lines = []
+    lines.append(f'--- Results for {name} ---')
+    lines.append(f'Bias: {np.mean(residuals)}')
+    lines.append(f'RMSE: {np.sqrt(np.mean(residuals ** 2))}')
+    lines.append(f'MAE:  {np.mean(np.abs(residuals))}')
 
     big_bins = [0, -4, -6, -8, -12]
     for i in range(len(big_bins) - 1):
@@ -94,16 +107,25 @@ def create_results(log_ratio_col, height_col, name="set"):
         bin_true = height_col[bin_mask]
         bin_pred = predicted_height[bin_mask]
         bin_residual = bin_true - bin_pred
-        print(f'For heights between {big_bins[i+1]} and {big_bins[i]}')
-        print('Bias: ', np.mean(bin_residual))
-        print('RMSE: ', np.sqrt(np.mean(bin_residual ** 2)))
-        print('MAE: ', np.mean(np.abs(bin_residual)))
+        lines.append(f'For heights between {big_bins[i+1]} and {big_bins[i]}')
+        lines.append(f'Bias: {np.mean(bin_residual)}')
+        lines.append(f'RMSE: {np.sqrt(np.mean(bin_residual ** 2))}')
+        lines.append(f'MAE:  {np.mean(np.abs(bin_residual))}')
 
-# Run results on unfiltered train data (geeft weer Bias: -0.237...)
+    # Print results to console
+    output_text = "\n".join(lines)
+    print(output_text)
+
+    # Save metrics to text file
+    metrics_file = os.path.join(output_dir, f'metrics_{name}.txt')
+    with open(metrics_file, 'w') as f:
+        f.write(output_text)
+
+# Execute results for dataset splits
 create_results(train_lr, train_h, name="train")
 
-# val_lr, val_h, _, _ = process_csv_data("val_heights.csv")
-# create_results(val_lr, val_h, name="val")
+val_lr, val_h, _, _ = process_csv_data("per_pixel_heights_SouthernRecon.csv")
+create_results(val_lr, val_h, name="val")
 
 # test_lr, test_h, _, _ = process_csv_data("test_heights.csv")
 # create_results(test_lr, test_h, name="test")
