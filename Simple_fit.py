@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 def lin(x, a, b):
     return a * x + b
 
-# Data en tiff bestanden laden
 log_ratio_path = 'data/processed/blue_over_green_corr.tif'
 log_ratio_file = rio.open(log_ratio_path)
 
@@ -37,16 +36,18 @@ def process_csv_data(csv_file: str):
                             (log_ratio_col < np.percentile(log_ratio_col, 99.9)), True, False)
     total_mask = np.logical_and(outlier_mask, height_mask)
     
-    return log_ratio_col[total_mask], height_col[total_mask], uncer_col[total_mask]
+    # Geef ongefilterde data + mask terug
+    return log_ratio_col, height_col, uncer_col, total_mask
 
-# Load en fit train set
-train_lr, train_h, train_uncer = process_csv_data("per_pixel_heights_MainAOI.csv")
+# Load train set
+train_lr, train_h, train_uncer, train_mask = process_csv_data("per_pixel_heights_MainAOI.csv")
 
+# Curve fit enkel op total_mask (zoals in je eerste script)
 popt, pcov = curve_fit(lin,
-                       train_lr,
-                       train_h,
+                       train_lr[train_mask],
+                       train_h[train_mask],
                        [0, 0],
-                       train_uncer,
+                       train_uncer[train_mask],
                        absolute_sigma=True)
 print('popt:', popt)
 
@@ -98,13 +99,13 @@ def create_results(log_ratio_col, height_col, name="set"):
         print('RMSE: ', np.sqrt(np.mean(bin_residual ** 2)))
         print('MAE: ', np.mean(np.abs(bin_residual)))
 
-# Run resultaten per dataset
+# Run results on unfiltered train data (geeft weer Bias: -0.237...)
 create_results(train_lr, train_h, name="train")
 
-# val_lr, val_h, _ = process_csv_data("val_heights.csv")
+# val_lr, val_h, _, _ = process_csv_data("val_heights.csv")
 # create_results(val_lr, val_h, name="val")
 
-# test_lr, test_h, _ = process_csv_data("test_heights.csv")
+# test_lr, test_h, _, _ = process_csv_data("test_heights.csv")
 # create_results(test_lr, test_h, name="test")
 
 log_ratio_file.close()
