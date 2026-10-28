@@ -27,10 +27,10 @@ scale_x = transform[0]
 scale_y = transform[4]
 im_data = log_ratio_file.read(1)
 
-def process_csv_data(csv_file: str):
+def process_csv_data(csv_file: str, height_mask_h = -8):
     height_df = pd.read_csv(f'data/processed/{csv_file}')
     height_col = height_df['median_height'].values
-    height_mask = np.where(height_col > -8, True, False)
+    height_mask = np.where(height_col > height_mask_h, True, False)
     uncer_col = height_df['mean_uncertainty'].values
     numb_col = height_df['number_of_points'].values
     x_col = height_df['true_x'].values
@@ -39,10 +39,10 @@ def process_csv_data(csv_file: str):
     x_pix = np.array((x_col - offset_x) / scale_x).astype(int)
     y_pix = np.array((y_col - offset_y) / scale_y).astype(int)
     log_ratio_col = im_data[y_pix, x_pix]
-    outlier_mask = np.where((log_ratio_col > np.percentile(log_ratio_col, 0.1)) & 
+    outlier_mask = np.where((log_ratio_col > np.percentile(log_ratio_col, 0.1)) &
                             (log_ratio_col < np.percentile(log_ratio_col, 99.9)), True, False)
     total_mask = np.logical_and(outlier_mask, height_mask)
-    
+
     # Return un-filtered data alongside total_mask
     return log_ratio_col, height_col, uncer_col, total_mask
 
