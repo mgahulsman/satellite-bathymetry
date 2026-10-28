@@ -2,3 +2,8 @@
 /data/processed/*
 
 venv/*
+
+*.nc
+
+data/Ouput_acolite15aug_withoutsunglint
+data/_Ouput_acolite15aug_withoutsunglint
