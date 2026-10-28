@@ -8,39 +8,44 @@ def lin(x, a, b):
     return a * x + b
 
 log_ratio_path = 'data/processed/blue_over_green_corr.tif'
-log_ratio = rio.open(log_ratio_path)
+log_ratio_file = rio.open(log_ratio_path)
 
 ndwi_path = 'data/processed/ndwi.tif'
 ndwi = rio.open(ndwi_path)
 
-transform = log_ratio.transform
+transform = log_ratio_file.transform
 offset_x = transform[2]
 offset_y = transform[5]
 scale_x = transform[0]
 scale_y = transform[4]
-im_data = log_ratio.read(1)
+im_data = log_ratio_file.read(1)
 
-height_df = pd.read_csv('data/processed/per_pixel_heights_MainAOI.csv')
-height_col = height_df['median_height']
-height_mask = np.where(height_col > -12, True, False)
-uncer_col = height_df['mean_uncertainty']
-numb_col = height_df['number_of_points']
-x_col = height_df['true_x']
-y_col = height_df['true_y']
+def process_csv_data(csv_file: str):
+    height_df = pd.read_csv(f'data/processed/{csv_file}')
+    height_col = height_df['median_height']
+    height_mask = np.where(height_col > -8, True, False)
+    uncer_col = height_df['mean_uncertainty']
+    numb_col = height_df['number_of_points']
+    x_col = height_df['true_x']
+    y_col = height_df['true_y']
 
-x_pix = np.array((x_col - offset_x) / scale_x).astype(int)
-y_pix = np.array((y_col - offset_y) / scale_y).astype(int)
-log_ratio_col = im_data[y_pix, x_pix]
-outlier_mask = np.where((log_ratio_col > np.percentile(log_ratio_col,0.1))&(log_ratio_col < np.percentile(log_ratio_col,99.9)) , True, False)
-total_mask = np.logical_and(outlier_mask, height_mask)
+    x_pix = np.array((x_col - offset_x) / scale_x).astype(int)
+    y_pix = np.array((y_col - offset_y) / scale_y).astype(int)
+    log_ratio_col = im_data[y_pix, x_pix]
+    outlier_mask = np.where((log_ratio_col > np.percentile(log_ratio_col,0.1))&(log_ratio_col < np.percentile(log_ratio_col,99.9)) , True, False)
+    total_mask = np.logical_and(outlier_mask, height_mask)\
+    
+    return log_ratio_col[total_mask], height_col[total_mask], uncer_col[total_mask]
+
+log_ratio_col, height_col, uncer_col  = process_csv_data("per_pixel_heights_MainAOI.csv")
 
 popt, pcov = curve_fit(lin,
-                       log_ratio_col[total_mask],
-                       height_col[total_mask],
+                       log_ratio_col,
+                       height_col,
                        [0,0],
-                       uncer_col[total_mask],
+                       uncer_col,
                        absolute_sigma=True)
-x_bins = np.linspace(np.min(log_ratio_col), np.percentile(log_ratio_col,99.9), 201)
+x_bins = np.linspace(np.min(log_ratio_col), np.percentile(log_ratio_col, 99.9), 201)
 y_bins = np.linspace(np.min(height_col),np.max(height_col),201)
 
 plt.figure(figsize=(10,10))
@@ -87,4 +92,4 @@ for i in range(len(big_bins)-1):
     print('RMSE: ',np.sqrt(np.mean(bin_residual ** 2)))
     print('MAE: ',np.mean(np.abs(bin_residual)))
 
-log_ratio.close()
+log_ratio_file.close()
