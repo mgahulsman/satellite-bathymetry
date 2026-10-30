@@ -14,7 +14,7 @@ figs_dir = os.path.join(output_dir, 'figs')
 os.makedirs(figs_dir, exist_ok=True)
 
 # Load raster datasets
-log_ratio_path = 'data/processed/blue_over_green_corr.tif'
+log_ratio_path = 'data/processed/aero_over_green.tif'
 log_ratio_file = rio.open(log_ratio_path)
 
 ndwi_path = 'data/processed/ndwi.tif'
@@ -122,10 +122,11 @@ def create_results(log_ratio_col, height_col, name="set"):
         f.write(output_text)
 
 # Execute results for dataset splits
-create_results(train_lr, train_h, name="train")
+all_lr, all_h, _, _ = process_csv_data("per_pixel_heights_MainAOI.csv")
+create_results(train_lr, train_h, name="train_noglint_ag_nocorr")
 
 val_lr, val_h, _, _ = process_csv_data("per_pixel_heights_SouthernRecon.csv")
-create_results(val_lr, val_h, name="val")
+create_results(val_lr, val_h, name="val_noglint_ag_nocorr")
 
 # test_lr, test_h, _, _ = process_csv_data("test_heights.csv")
 # create_results(test_lr, test_h, name="test")
