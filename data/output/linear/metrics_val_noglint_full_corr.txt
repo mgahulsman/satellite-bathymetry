@@ -1,0 +1,20 @@
+--- Results for val_noglint_full_corr ---
+Bias: -0.4697944462066325
+RMSE: 1.0665765463405557
+MAE:  0.9190071247162978
+For heights between -4 and 0
+Bias: 0.8100895169825916
+RMSE: 1.075694455524027
+MAE:  0.9172540099390813
+For heights between -6 and -4
+Bias: -0.5112179040586926
+RMSE: 0.8633805514595007
+MAE:  0.7334332155452227
+For heights between -8 and -6
+Bias: -1.228614726173008
+RMSE: 1.333956961190765
+MAE:  1.2299145142700347
+For heights between -12 and -8
+Bias: nan
+RMSE: nan
+MAE:  nan

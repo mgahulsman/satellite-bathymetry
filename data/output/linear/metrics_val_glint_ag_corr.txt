@@ -1,0 +1,20 @@
+--- Results for val_glint_ag_corr ---
+Bias: -6.167227517899072
+RMSE: 6.366801962111823
+MAE:  6.167227517899072
+For heights between -4 and 0
+Bias: -5.397489391678363
+RMSE: 5.761566520057401
+MAE:  5.397489391678363
+For heights between -6 and -4
+Bias: -6.251840315832104
+RMSE: 6.455300081236206
+MAE:  6.251840315832104
+For heights between -8 and -6
+Bias: -6.5235521957003195
+RMSE: 6.586642521546274
+MAE:  6.5235521957003195
+For heights between -12 and -8
+Bias: nan
+RMSE: nan
+MAE:  nan

@@ -1,0 +1,20 @@
+--- Results for val_noglint_bg_corr ---
+Bias: 0.6203777506858456
+RMSE: 1.1512039143910755
+MAE:  0.8788604963267673
+For heights between -4 and 0
+Bias: 2.093619686898902
+RMSE: 2.13323402389671
+MAE:  2.093619686898902
+For heights between -6 and -4
+Bias: 0.6389156001839277
+RMSE: 0.8393555933787543
+MAE:  0.6822593558620504
+For heights between -8 and -6
+Bias: -0.36383488860912205
+RMSE: 0.5239392018075398
+MAE:  0.42093416886739393
+For heights between -12 and -8
+Bias: nan
+RMSE: nan
+MAE:  nan
