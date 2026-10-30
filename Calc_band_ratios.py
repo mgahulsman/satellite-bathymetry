@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy import ndimage
 
 data_dir = r'.\data'
-image_path = os.path.join(data_dir, 'S2A_MSI_2023_08_15_16_45_16_T16RCU_L2R.nc')
+image_path = os.path.join(data_dir, 'S2A_MSI_2023_08_15_16_45_16_T16RCU_L2R_glinted.nc')
 output_dir = os.path.join(data_dir, 'processed')
 
 image_data = nc.Dataset(image_path)
@@ -32,6 +32,7 @@ red = image_data['rhos_665'][:]
 red = ndimage.median_filter(red, size=3)
 nir = image_data['rhos_833'][:]
 nir = ndimage.median_filter(nir, size=3)
+nir_smooth = ndimage.median_filter(nir, size=7)
 
 
 #The processed image contain a few negative values, don't work with log, should discuss
@@ -105,3 +106,18 @@ save_as_tif(blue_over_green_corr,height,width,proj_string,transform,blue_over_gr
 
 blue_over_red_corr_path = os.path.join(output_dir, 'blue_over_red_corr.tif')
 save_as_tif(blue_over_red_corr,height,width,proj_string,transform,blue_over_red_corr_path)
+
+nir_path = os.path.join(output_dir, 'nir_smooth.tif')
+save_as_tif(nir_smooth,height,width,proj_string,transform,nir_path)
+
+blue_path = os.path.join(output_dir, 'blue.tif')
+save_as_tif(blue,height,width,proj_string,transform,blue_path)
+
+green_path = os.path.join(output_dir, 'green.tif')
+save_as_tif(green,height,width,proj_string,transform,green_path)
+
+red_path = os.path.join(output_dir, 'red.tif')
+save_as_tif(red,height,width,proj_string,transform,red_path)
+
+aero_path = os.path.join(output_dir, 'aero.tif')
+save_as_tif(aero,height,width,proj_string,transform,aero_path)
