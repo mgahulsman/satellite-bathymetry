@@ -1,0 +1,20 @@
+--- Results for val_noglint_rf ---
+Bias: 0.4262048432174376
+RMSE: 1.348771216320552
+MAE:  1.0784687630165053
+For heights between -4 and 0
+Bias: 2.1991950729024587
+RMSE: 2.33258956042098
+MAE:  2.1991950729024587
+For heights between -6 and -4
+Bias: 0.4860460137070467
+RMSE: 0.9369497489719598
+MAE:  0.7687913369169429
+For heights between -8 and -6
+Bias: -0.8212390144639697
+RMSE: 1.0228756900491527
+MAE:  0.8699000858752491
+For heights between -12 and -8
+Bias: nan
+RMSE: nan
+MAE:  nan
