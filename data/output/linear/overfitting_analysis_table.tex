@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\caption{\textbf{Table: SDB Model Overfitting and Domain Generalization Analysis.} "
+         "Summary of training and out-of-domain validation metrics, displaying the RMSE Ratio "
+         "($R_{\text{OOD}} = \text{RMSE}_{\text{val}} / \text{RMSE}_{\text{train}}$) "
+         "and Systematic Bias Shift ($\Delta\text{Bias} = \text{Bias}_{\text{val}} - \text{Bias}_{\text{train}}$).}
+\label{tab:sdb_overfitting_analysis}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ll r r r r r r l}
+\toprule
+& & \multicolumn{2}{c}{\textbf{Training Set}} & \multicolumn{2}{c}{\textbf{Validation Set}} & \multicolumn{2}{c}{\textbf{Overfitting Indicators}} & \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+\textbf{Model} & \textbf{Correction} & \textbf{Bias ($m$)} & \textbf{RMSE ($m$)} & \textbf{Bias ($m$)} & \textbf{RMSE ($m$)} & \textbf{$R_{\text{OOD}}$} & \textbf{$\Delta$Bias ($m$)} & \textbf{Classification} \\
+\midrule
+\textbf{full\_corr} & Glint & -0.211 & 0.936 & -3.592 & 3.743 & 4.00 & -3.382 & \textit{Severe Overfit / Domain Collapse} \\
+\textbf{full\_corr} & No-Glint & -0.268 & 1.201 & -0.470 & 1.067 & 0.89 & -0.202 & \textit{Robust Generalization} \\
+\textbf{ag\_corr} & Glint & -0.235 & 1.006 & -6.167 & 6.367 & 6.33 & -5.932 & \textit{Severe Overfit / Domain Collapse} \\
+\textbf{ag\_corr} & No-Glint & -0.276 & 1.232 & -0.915 & 1.382 & 1.12 & -0.639 & \textit{Moderate Overfit} \\
+\textbf{ag\_nocorr} & Glint & -0.428 & 1.499 & -0.051 & 1.091 & 0.73 & +0.377 & \textit{Robust Generalization} \\
+\textbf{ag\_nocorr} & No-Glint & -0.414 & 1.447 & -0.162 & 1.098 & 0.76 & +0.252 & \textit{Robust Generalization} \\
+\textbf{rf} & Glint & -0.025 & 0.824 & +0.052 & 1.016 & 1.23 & +0.077 & \textit{Robust Generalization} \\
+\textbf{rf} & No-Glint & -0.026 & 0.886 & +0.426 & 1.349 & 1.52 & +0.452 & \textit{Moderate Overfit} \\
+\textbf{bg\_corr} & Glint & -0.226 & 1.052 & -5.395 & 5.577 & 5.30 & -5.170 & \textit{Severe Overfit / Domain Collapse} \\
+\textbf{bg\_corr} & No-Glint & -0.273 & 1.277 & +0.620 & 1.151 & 0.90 & +0.893 & \textit{Moderate Overfit} \\
+\textbf{bg\_nocorr} & Glint & -0.327 & 1.313 & +1.034 & 1.420 & 1.08 & +1.361 & \textit{Moderate Overfit} \\
+\textbf{bg\_nocorr} & No-Glint & -0.301 & 1.272 & +0.923 & 1.346 & 1.06 & +1.224 & \textit{Moderate Overfit} \\
+\textbf{full\_nocorr} & Glint & -0.288 & 1.209 & -1.264 & 1.795 & 1.49 & -0.976 & \textit{Moderate Overfit} \\
+\textbf{full\_nocorr} & No-Glint & -0.310 & 1.292 & +0.955 & 1.376 & 1.06 & +1.265 & \textit{Moderate Overfit} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
