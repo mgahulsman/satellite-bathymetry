@@ -1,4 +1,4 @@
-import numpy as np
+'''Create statistics for table 3.1'''
 import pandas as pd
 import os
 
