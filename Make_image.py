@@ -1,9 +1,6 @@
 import os
 import numpy as np
-import pandas as pd
 import rasterio as rio
-from scipy.optimize import curve_fit
-import matplotlib.pyplot as plt
 
 def lin(x, a1, a2, a3, a4 , b, c1, c2, c3, c4):
     ag = np.log10(10000 * (x[0] + c1 * x[4])) / np.log10(10000 * (x[2] + c3 * x[4]))
