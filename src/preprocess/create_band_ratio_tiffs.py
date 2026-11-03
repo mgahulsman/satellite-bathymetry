@@ -5,7 +5,7 @@ import netCDF4 as nc
 from scipy import ndimage
 
 data_dir = r'.\data'
-image_path = os.path.join(data_dir, 'S2A_MSI_2023_08_15_16_45_16_T16RCU_L2R_glinted.nc')
+image_path = os.path.join(data_dir, 'S2A_MSI_2023_08_15_16_45_16_T16RCU_L2R.nc')
 output_dir = os.path.join(data_dir, 'processed')
 
 image_data = nc.Dataset(image_path)
