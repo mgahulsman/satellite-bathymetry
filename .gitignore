@@ -7,3 +7,9 @@ venv/*
 
 data/Ouput_acolite15aug_withoutsunglint
 data/_Ouput_acolite15aug_withoutsunglint
+
+
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+*$py.class
