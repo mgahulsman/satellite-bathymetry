@@ -1,9 +1,7 @@
 import numpy as np
 import rasterio as rio
-import pandas as pd
 import os
 import netCDF4 as nc
-import matplotlib.pyplot as plt
 from scipy import ndimage
 
 data_dir = r'.\data'
