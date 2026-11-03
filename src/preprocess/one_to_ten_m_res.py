@@ -1,3 +1,4 @@
+'''Going from 1 meter resolution to 10 meter resolution'''
 import os
 import numpy as np
 
